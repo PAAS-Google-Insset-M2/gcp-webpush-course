@@ -1,0 +1,9 @@
+gcloud config get-value compute/region
+gcloud firestore databases create --location=$(gcloud config get-value compute/region)
+
+{
+    "firestore": {
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
+    }
+}

@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+    // All database
+  match /databases/{database}/documents {
+  // All documents
+    match /{document=**} {
+    // Allow reads
+      allow read: if true;
+    }
+    match /{document=**} {
+        // Deny writes
+      allow write: if false; 
+    }
+  }
+}

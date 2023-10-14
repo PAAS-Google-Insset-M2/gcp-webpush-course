@@ -38,9 +38,9 @@ function initializeUI() {
   swRegistration.pushManager.getSubscription().then(function (subscription) {
     isSubscribed = !(subscription === null);
 
-    if (subscription !== null) {
-      updateSubscriptionOnServer(subscription);
-    }
+    // if (subscription !== null) {
+    //   updateSubscriptionOnServer(subscription);
+    // }
 
     if (isSubscribed) {
       console.log("User IS subscribed.");

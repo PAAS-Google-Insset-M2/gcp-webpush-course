@@ -2,12 +2,12 @@ self.addEventListener("push", function (event) {
   console.log("[Service Worker] Push Received.");
   console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
 
-  //   const data = event.data?.json();
-  //   const title = data.title || "Something Has Happened";
-  //   const message = data.body;
+  const data = event.data?.json();
+  const title = data.title || "Something Has Happened";
+  const message = data.body;
 
-  const title = "Something Has Happened";
-  const message = event.data.text();
+  // const title = "Something Has Happened";
+  // const message = event.data.text();
 
   const options = {
     body: `Message - ${message}`,
@@ -18,6 +18,7 @@ self.addEventListener("push", function (event) {
 
   const notificationPromise = self.registration.showNotification(
     `Worker info - ${title}`,
+    // `Worker info - ${title}`,
     options
   );
   event.waitUntil(notificationPromise);
