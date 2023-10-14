@@ -23,7 +23,8 @@ app.listen(port, () => {
 });
 
 // Save endpoints on gcp
-const endPoints = [];
+// const endPoints = [];
+let endPoints = [];
 
 app.get("/favicon.ico", function (req, res) {
   res.sendFile(__dirname + "/favicon.ico");
@@ -35,6 +36,22 @@ app.post("/api/save-endpoint/", (req, res) => {
 
   endPoints.push(req.body);
   console.log("endPoints");
+  console.log(endPoints);
+
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify({ success: true }));
+});
+
+app.post("/api/remove-endpoint/", (req, res) => {
+  console.log("req");
+  console.log(req.body);
+
+  console.log("endPoints A");
+  console.log(endPoints);
+
+  endPoints = endPoints.filter((elem) => elem.endpoint != req.body.endpoint);
+
+  console.log("endPoints B");
   console.log(endPoints);
 
   res.setHeader("Content-Type", "application/json");

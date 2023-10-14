@@ -28,7 +28,7 @@ function initializeUI() {
   pushButton.addEventListener("click", function () {
     pushButton.disabled = true;
     if (isSubscribed) {
-      // TODO: Unsubscribe user
+      unsubscribeUser();
     } else {
       subscribeUser();
     }
@@ -101,27 +101,83 @@ function subscribeUser() {
     });
 }
 
-function updateSubscriptionOnServer(subscription) {
-  // TODO: Send subscription to application server
-  return fetch(`/api/save-endpoint/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(subscription),
-  })
-    .then((res) => {
-      if (!res.ok) {
-        console.error(res);
-        throw new Error(`HTTP error! Status: ${res.status}`);
-      }
-      console.log("res");
-      console.log(res);
-      return res;
+function updateSubscriptionOnServer(subscription, isUnsubscribe = false) {
+  if (!isUnsubscribe) {
+    // TODO: Send subscription to application server
+    return fetch(`/api/save-endpoint/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(subscription),
     })
-    .catch((error) => {
-      console.error("error");
-      console.error(error);
+      .then((res) => {
+        if (!res.ok) {
+          console.error(res);
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        console.log("res");
+        console.log(res);
+        return res;
+      })
+      .catch((error) => {
+        console.error("error");
+        console.error(error);
+      });
+  } else {
+    return fetch(`/api/remove-endpoint/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(subscription),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          console.error(res);
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        console.log("res");
+        console.log(res);
+        return res;
+      })
+      .catch((error) => {
+        console.error("error");
+        console.error(error);
+      });
+  }
+}
+
+let currentSubscription = null;
+
+function unsubscribeUser() {
+  swRegistration.pushManager
+    .getSubscription()
+    .then(function (subscription) {
+      console.log("subscription");
+      console.log(subscription);
+
+      if (subscription) {
+        currentSubscription = subscription;
+
+        return subscription.unsubscribe();
+      }
+    })
+    .then(function (canUnsubscribe) {
+      if (canUnsubscribe && currentSubscription !== null) {
+        updateSubscriptionOnServer(currentSubscription, true);
+      }
+    })
+    .catch(function (error) {
+      console.log("Error unsubscribing", error);
+    })
+    .then(function () {
+      //   updateSubscriptionOnServer(null);
+
+      console.log("User is unsubscribed.");
+      isSubscribed = false;
+
+      updateBtn();
     });
 }
 
