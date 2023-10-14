@@ -88,3 +88,10 @@ function sendNotifisToEndpoints(title, body) {
       });
   });
 }
+
+/** in package.json
+ * "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+ */
