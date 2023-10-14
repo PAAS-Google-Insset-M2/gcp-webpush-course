@@ -17,7 +17,7 @@ self.addEventListener("push", function (event) {
   };
 
   const notificationPromise = self.registration.showNotification(
-    `Worker info - ${title}`,
+    `SW - ${title}`,
     // `Worker info - ${title}`,
     options
   );

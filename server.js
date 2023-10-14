@@ -1,8 +1,7 @@
 const uuid = require("uuid");
 const express = require("express");
 const app = express();
-const port = 8080;
-// const port = parseInt(process.env.PORT) || 3000;
+const port = 8080; // 3000
 // const port = parseInt(process.env.PORT) || 8080;
 
 const cors = require("cors");
@@ -36,8 +35,7 @@ app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
 
-// Save endpoints on gcp
-let endPoints = [];
+// Saving endpoints on gcp - firestore
 
 app.get("/favicon.ico", function (req, res) {
   res.sendFile(__dirname + "/favicon.ico");
@@ -48,8 +46,6 @@ app.post("/api/save-endpoint/", async (req, res) => {
     let docId = uuid.v4();
     const epDoc = db.doc(`${endPointCollection}/${docId}`);
     await epDoc.set(req.body);
-
-    endPoints.push(req.body);
 
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ success: true }));
@@ -66,18 +62,9 @@ app.post("/api/save-endpoint/", async (req, res) => {
     // console.log(req.body);
     let epExists = await endPointExists(req.body.endpoint);
     if (!epExists) {
-      let tt = test.v4();
-
-      console.log(`tt => ${tt}`);
-
-      // let docId = uuidv4();
-      let docId = tt;
+      let docId = uuid.v4();
       const epDoc = db.doc(`${endPointCollection}/${docId}`);
       await epDoc.set(req.body);
-
-      endPoints.push(req.body);
-      console.log("endPoints");
-      console.log(endPoints);
 
       res.setHeader("Content-Type", "application/json");
       res.send(JSON.stringify({ success: true }));
@@ -93,39 +80,36 @@ app.post("/api/save-endpoint/", async (req, res) => {
  */
 
 app.post("/api/remove-endpoint/", async (req, res) => {
-  console.log("endPoints A");
-  console.log(endPoints);
+  try {
+    const eps = await db
+      .collection(`${endPointCollection}`)
+      .where("endpoint", "==", req.body.endpoint)
+      .get();
+    const ids = eps.docs.map((f) => f.id);
 
-  endPoints = endPoints.filter((elem) => elem.endpoint != req.body.endpoint);
+    ids.forEach(async (id) => {
+      let epDoc = db.doc(`${endPointCollection}/${id}`);
+      await epDoc.delete();
+    });
 
-  // const orderDoc = db.doc(`orders/123`);
-  // await orderDoc.delete();
-  // const epDoc = db.doc(`${endPointCollection}/${docId}`);
-  // await epDoc.delete();
-
-  const eps = await db
-    .collection(`${endPointCollection}`)
-    .where("endpoint", "==", req.body.endpoint)
-    .get();
-  const ids = tt.docs.map((f) => f.id);
-
-  ids.forEach(async (id) => {
-    let epDoc = db.doc(`${endPointCollection}/${id}`);
-    await epDoc.delete();
-  });
-
-  console.log("endPoints B");
-  console.log(endPoints);
-
-  res.setHeader("Content-Type", "application/json");
-  res.send(JSON.stringify({ success: true }));
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ success: true }));
+  } catch (ex) {
+    console.error(ex);
+    res.status(500).json({ error: ex.toString() });
+  }
 });
 
 app.get("/api/send", async (req, res) => {
-  await sendNotifisToEndpoints("Test", "It is working");
+  try {
+    await sendNotifisToEndpoints("Test", "It is working");
 
-  res.setHeader("Content-Type", "application/json");
-  res.send(JSON.stringify({ success: true }));
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ success: true }));
+  } catch (ex) {
+    console.error(ex);
+    res.status(500).json({ error: ex.toString() });
+  }
 });
 
 async function endPointExists(endpoint) {
@@ -141,9 +125,6 @@ async function endPointExists(endpoint) {
 async function getEndPoints() {
   const collection = await db.collection(`${endPointCollection}`).get();
   const endPs = collection.docs.map((d) => d.data());
-
-  console.log("endPs");
-  console.log(endPs);
 
   return endPs;
 }
