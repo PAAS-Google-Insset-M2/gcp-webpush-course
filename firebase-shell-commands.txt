@@ -7,3 +7,7 @@ gcloud firestore databases create --location=$(gcloud config get-value compute/r
         "indexes": "firestore.indexes.json"
     }
 }
+
+firebase login
+firebase deploy 
+gcloud run deploy
