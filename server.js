@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const port = 8887;
+// const port = 8887;
+const port = parseInt(process.env.PORT) || 8887;
 
 const bodyParser = require("body-parser");
 const webpush = require("web-push");
