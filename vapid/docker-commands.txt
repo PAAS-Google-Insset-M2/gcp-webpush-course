@@ -1,0 +1,3 @@
+sudo docker build -t vapid-keys-1 .
+sudo docker run -ti --rm vapid-keys-1
+
