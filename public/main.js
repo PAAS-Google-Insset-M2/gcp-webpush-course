@@ -1,5 +1,6 @@
 const pushButton = document.querySelector(".js-push-btn");
 const subscriptionText = document.querySelector("#subscription-detail-text");
+const messageForm = document.querySelector("#message-section");
 
 let isSubscribed = false;
 let swRegistration = null;

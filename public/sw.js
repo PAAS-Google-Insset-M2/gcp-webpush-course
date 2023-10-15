@@ -10,7 +10,8 @@ self.addEventListener("push", function (event) {
   // const message = event.data.text();
 
   const options = {
-    body: `Message - ${message}`,
+    // body: `Message - ${message}`,
+    body: `${message}`,
     icon: "images/icon.png",
     badge: "images/badge.png",
     vibrate: [200, 300, 100],

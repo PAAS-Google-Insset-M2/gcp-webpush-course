@@ -30,6 +30,9 @@ app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(cors());
 
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
+const { check, validationResult } = require("express-validator");
+
 // Have Express JS begin listening for requests.
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
@@ -100,17 +103,59 @@ app.post("/api/remove-endpoint/", async (req, res) => {
   }
 });
 
-app.get("/api/send", async (req, res) => {
-  try {
-    await sendNotifisToEndpoints("Test", "It is working");
+var sendMessageValidation = [
+  // Check title
+  check("title")
+    .isLength({ min: 3 })
+    .withMessage("Title Must Be at Least 3 Characters")
+    .trim()
+    .escape(),
+  // Check message
+  check("message")
+    .isLength({ min: 5 })
+    .withMessage("Message Must Be at Least 5 Characters")
+    .trim()
+    .escape(),
+];
 
-    res.setHeader("Content-Type", "application/json");
-    res.send(JSON.stringify({ success: true }));
-  } catch (ex) {
-    console.error(ex);
-    res.status(500).json({ error: ex.toString() });
+app.post(
+  "/api/send",
+  urlencodedParser,
+  sendMessageValidation,
+  async (req, res) => {
+    // res.setHeader("Content-Type", "application/json");
+    // res.send(JSON.stringify({ success: true }));
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      console.log("Request body");
+      console.log(req.body);
+
+      console.log("Form errors");
+      console.log(errors);
+      res.redirect("/");
+    } else {
+      let title = req.body.title
+        .charAt(0)
+        .toUpperCase()
+        .concat(req.body.title.substring(1));
+      let message = req.body.message
+        .charAt(0)
+        .toUpperCase()
+        .concat(req.body.message.substring(1));
+
+      try {
+        await sendNotifisToEndpoints(title, message);
+
+        res.redirect("/");
+      } catch (ex) {
+        console.error(ex);
+        res.status(500).json({ error: ex.toString() });
+      }
+    }
   }
-});
+);
 
 async function endPointExists(endpoint) {
   const tt = await db
